@@ -52,7 +52,13 @@ function transform(file, api) {
   const component = ast.findJSXElements('ComponentPage');
   const componentOpening = component.at(0).get().value.openingElement;
 //console.log(componentOpening.attributes);
-  let props = {};
+  let props = {
+    bp: j.literal(''),
+    overview: j.literal(''),
+    dos: j.literal(''),
+    donts: j.literal(''),
+    propertiesTablesSources: j.arrayExpression([])
+  };
 
   componentOpening.attributes.forEach(attribute => {
     switch(attribute.name.name) {
@@ -68,9 +74,11 @@ function transform(file, api) {
           const attrs = card.value.openingElement.attributes;
           
           const view = j(card.value.children).find(j.JSXOpeningElement).at(0).get().parentPath.value;
+          const exampleTitleValue = attrs.find(attr => attr.name.name == 'title').value;
+          const exampleTitle = exampleTitleValue.value ? j.literal(exampleTitleValue.value) : j(exampleTitleValue).find(j.StringLiteral).at(0).get().value;
 
           const example = j.objectExpression([
-            j.property('init', j.literal('title'), j.literal(attrs.find(attr => attr.name.name == 'title').value.value)),
+            j.property('init', j.literal('title'), exampleTitle),
             j.property('init', j.literal('code'), attrs.find(attr => attr.name.name == 'code').value),
             j.property('init', j.literal('view'), view)
           ]);
@@ -82,16 +90,16 @@ function transform(file, api) {
         break;
 
       case 'propertiesTables':
-        const pt = j(attribute.value.expression).find(j.JSXOpeningElement);
-        
-        if (pt.length > 0) {
-          const attrs = pt.at(0).get().value.attributes;
+        const ptComponent = j(attribute).findJSXElements('PropertiesTableSet');
+
+        if (ptComponent.length > 0) {
+          const attrs = ptComponent.at(0).get().value.openingElement.attributes;
           const sourcesAttr = attrs.find(attr => attr.name.name == 'sources');
           const sourcesArrayExpression = j(sourcesAttr).find(j.JSXExpressionContainer).at(0).get().value.expression;
 
           props.propertiesTablesSources = sourcesArrayExpression;
         } else {
-          props.propertiesTablesSources = j.arrayExpression();
+          props.propertiesTablesSources = j.arrayExpression([]);
         }
 
         break;
@@ -111,7 +119,7 @@ function transform(file, api) {
         const bp = j(attribute.value.expression).find(j.JSXExpressionContainer);
 
         if (bp.length > 0) {
-          props.bp = overview.at(0).get().value.expression;
+          props.bp = bp.at(0).get().value.expression;
         } else {
           props.bp = j.literal('');
         }

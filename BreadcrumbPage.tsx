@@ -1,40 +1,42 @@
 import * as React from 'react';
-
-import { ComponentStatus } from '../../demo/ComponentStatus/ComponentStatus';
+import { DropdownBasicExample } from './examples/Dropdown.Basic.Example';
 import { DemoPage } from "../../demo/components/DemoPage";
 import { IDemoPageProps } from "../../demo/components/DemoPage.types";
-import { BreadcrumbStatus } from './Breadcrumb.checklist';
-import { BreadcrumbBasicExample } from './examples/Breadcrumb.Basic.Example';
-import { BreadcrumbStaticExample } from './examples/Breadcrumb.Static.Example';
+import { DropdownCustomExample } from './examples/Dropdown.Custom.Example';
+import { DropdownErrorExample } from './examples/Dropdown.Error.Example';
+import { ComponentStatus } from '../../demo/ComponentStatus/ComponentStatus';
+import { DropdownStatus } from './Dropdown.checklist';
 
-const BreadcrumbBasicExampleCode = require(
-  '!raw-loader!office-ui-fabric-react/src/components/Breadcrumb/examples/Breadcrumb.Basic.Example.tsx'
-) as string;
-const BreadcrumbStaticExampleCode = require(
-  '!raw-loader!office-ui-fabric-react/src/components/Breadcrumb/examples/Breadcrumb.Static.Example.tsx'
-) as string;
+const DropdownBasicExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/Dropdown/examples/Dropdown.Basic.Example.tsx') as string;
+const DropdownCustomExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/Dropdown/examples/Dropdown.Custom.Example.tsx') as string;
+const DropdownErrorExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/Dropdown/examples/Dropdown.Error.Example.tsx') as string;
 
-export const BreadcrumbPageProps: IDemoPageProps = {
-  title: 'Breadcrumb',
-  componentName: 'Breadcrumb',
-  componentUrl: 'https://github.com/OfficeDev/office-ui-fabric-react/tree/master/packages/office-ui-fabric-react/src/components/Breadcrumb',
-  componentStatus: BreadcrumbStatus,
+export const DropdownPageProps: IDemoPageProps = {
+  title: 'Dropdown',
+  componentName: 'Dropdown',
+  componentUrl: 'https://github.com/OfficeDev/office-ui-fabric-react/tree/master/packages/office-ui-fabric-react/src/components/Dropdown',
+  componentStatus: DropdownStatus,
   examples: [{
-    "title": "Default Breadcrumb",
-    "code": { BreadcrumbBasicExampleCode },
-    "view": <BreadcrumbBasicExample />
+    "title": "Dropdown",
+    "code": { DropdownBasicExampleCode },
+    "view": <DropdownBasicExample />
 }, {
-    "title": "Breadcrumb with static width ",
-    "code": { BreadcrumbStaticExampleCode },
-    "view": <BreadcrumbStaticExample />
+    "title": "Customized Dropdown",
+    "code": { DropdownCustomExampleCode },
+    "view": <DropdownCustomExample />
+}, {
+    "title": "Dropdown with Error Message",
+    "code": { DropdownErrorExampleCode },
+    "view": <DropdownErrorExample />
 }],
   propertiesTablesSources: [
-  require<string>('!raw-loader!office-ui-fabric-react/src/components/Breadcrumb/Breadcrumb.types.ts')
+  require<string>('!raw-loader!office-ui-fabric-react/src/components/Dropdown/Dropdown.types.ts'),
+  require<string>('!raw-loader!office-ui-fabric-react/src/utilities/selectableOption/SelectableDroppableText.types.ts')
 ],
-  overview: require<string>('!raw-loader!office-ui-fabric-react/src/components/Breadcrumb/docs/BreadcrumbOverview.md'),
+  overview: require<string>('!raw-loader!office-ui-fabric-react/src/components/Dropdown/docs/DropdownOverview.md'),
   bestPractices: "",
-  dos: require<string>('!raw-loader!office-ui-fabric-react/src/components/Breadcrumb/docs/BreadcrumbDos.md'),
-  donts: require<string>('!raw-loader!office-ui-fabric-react/src/components/Breadcrumb/docs/BreadcrumbDonts.md'),
+  dos: require<string>('!raw-loader!office-ui-fabric-react/src/components/Dropdown/docs/DropdownDos.md'),
+  donts: require<string>('!raw-loader!office-ui-fabric-react/src/components/Dropdown/docs/DropdownDonts.md'),
   isHeaderVisible: true,
 };
-export const BreadcrumbPage = (props: { isHeaderVisible: boolean }) => (<DemoPage { ...{ ...BreadcrumbPageProps, ...props } } />);
+export const DropdownPage = (props: { isHeaderVisible: boolean }) => (<DemoPage { ...{ ...DropdownPageProps, ...props } } />);

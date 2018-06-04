@@ -1,7 +1,8 @@
 {
   "name": "fabric-mods",
   "scripts": {
-    "start": "cp backup.tsx BreadcrumbPage.tsx && jscodeshift -t transform.js --parser babylon BreadcrumbPage.tsx"
+    "start": "cp backup.tsx BreadcrumbPage.tsx && jscodeshift -t transform.js --parser babylon BreadcrumbPage.tsx",
+    "realdeal": "jscodeshift -t transform.js --parser babylon ../fabric/packages/office-ui-fabric-react/src/components/**/*Page.tsx"
   },
   "dependencies": {
     "jscodeshift": "^0.5.0",
