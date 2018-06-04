@@ -27,8 +27,8 @@ function transform(file, api) {
   // import { DemoPage } from '../../demo/components/DemoPage';
   let source = j(recast.parse(file.source, { parser: { parse } }))
     .find(
-        j.ImportDeclaration, 
-        node => node.source.value == '@uifabric/example-app-base'
+      j.ImportDeclaration,
+      node => node.source.value == '@uifabric/example-app-base'
     )
     .remove()
     .insertAfter(j.importDeclaration(
@@ -45,13 +45,21 @@ function transform(file, api) {
     ))
     .toSource();
 
+  source = j(recast.parse(source, { parser: { parse } }))
+    .find(
+      j.ImportDeclaration,
+      node => node.source.value.endsWith('/ComponentStatus')
+    )
+    .remove()
+    .toSource();
+
   // Step 2: create the JSON based on the exported component:
   let ast = j(recast.parse(source, { parser: { parse } }));
   const exportDeclaration = ast.find(j.ExportNamedDeclaration);
   
   const component = ast.findJSXElements('ComponentPage');
   const componentOpening = component.at(0).get().value.openingElement;
-//console.log(componentOpening.attributes);
+
   let props = {
     bp: j.literal(''),
     overview: j.literal(''),
@@ -70,12 +78,16 @@ function transform(file, api) {
         break;
 
       case 'implementationExampleCards':
-        cards = j(attribute.value.expression).findJSXElements('ExampleCard');
+        cards = j(attribute.value).findJSXElements('ExampleCard');
 
         cards.forEach(card => {
           const attrs = card.value.openingElement.attributes;
           
-          const view = j(card.value.children).find(j.JSXOpeningElement).at(0).get().parentPath.value;
+          const view = 
+            card.value.children.length > 3 ?
+            recast.parse('<>' + j(card.value.children).toSource().join('') + '</>', { parser: { parse } }).program.body[0].expression :
+            j(card.value.children).find(j.JSXOpeningElement).at(0).get().parentPath.value;
+
           const exampleTitleValue = attrs.find(attr => attr.name.name == 'title').value;
           const exampleTitle = exampleTitleValue.value ? j.literal(exampleTitleValue.value) : j(exampleTitleValue).find(j.StringLiteral).at(0).get().value;
 
@@ -92,12 +104,16 @@ function transform(file, api) {
         break;
 
       case 'exampleCards':
-        cards = j(attribute.value.expression).findJSXElements('ExampleCard');
+        cards = j(attribute.value).findJSXElements('ExampleCard');
 
         cards.forEach(card => {
           const attrs = card.value.openingElement.attributes;
-          
-          const view = j(card.value.children).find(j.JSXOpeningElement).at(0).get().parentPath.value;
+
+          const view = 
+            card.value.children.length > 3 ?
+            recast.parse('<>' + j(card.value.children).toSource().join('') + '</>', { parser: { parse } }).program.body[0].expression :
+            j(card.value.children).find(j.JSXOpeningElement).at(0).get().parentPath.value;
+
           const exampleTitleValue = attrs.find(attr => attr.name.name == 'title').value;
           const exampleTitle = exampleTitleValue.value ? j.literal(exampleTitleValue.value) : j(exampleTitleValue).find(j.StringLiteral).at(0).get().value;
 
@@ -217,13 +233,10 @@ function transform(file, api) {
   const replacement = recast.parse(exportStatement, { parser: { parse } }).program.body;
 
   source = exportDeclaration 
-    .replaceWith(p => replacement)
-    .insertAfter(
-      j(`export const ${props.title}Page = (props: { isHeaderVisible: boolean }) => (<DemoPage { ...{ ...${props.title}PageProps, ...props } } />);`).toSource()
-    )
+    .remove()
     .toSource();
 
-  return source;
+  return source + '\n' + j(replacement).toSource() + `\n\nexport const ${props.title}Page = (props: { isHeaderVisible: boolean }) => (<DemoPage { ...{ ...${props.title}PageProps, ...props } } />);`;
 }
 
 module.exports = transform;
