@@ -1,0 +1,10 @@
+{
+  "name": "fabric-mods",
+  "scripts": {
+    "start": "cp backup.tsx BreadcrumbPage.tsx && jscodeshift -t transform.js --parser babylon BreadcrumbPage.tsx"
+  },
+  "dependencies": {
+    "jscodeshift": "^0.5.0",
+    "babylon": "^7.0.0-beta.47"
+  }
+}
