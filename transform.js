@@ -154,7 +154,7 @@ function transform(file, api) {
   examples: ${j(props.examples).toSource()},
   propertiesTablesSources: ${j(props.propertiesTablesSources).toSource()},
   overview: ${j(props.overview).toSource()},
-  bestPractices: '',
+  bestPractices: ${j(props.bp).toSource()},,
   dos: ${j(props.dos).toSource()},
   donts: ${j(props.donts).toSource()},
   isHeaderVisible: true,
