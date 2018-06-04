@@ -18,15 +18,15 @@ export const DropdownPageProps: IDemoPageProps = {
   componentStatus: DropdownStatus,
   examples: [{
     "title": "Dropdown",
-    "code": { DropdownBasicExampleCode },
+    "code": DropdownBasicExampleCode,
     "view": <DropdownBasicExample />
 }, {
     "title": "Customized Dropdown",
-    "code": { DropdownCustomExampleCode },
+    "code": DropdownCustomExampleCode,
     "view": <DropdownCustomExample />
 }, {
     "title": "Dropdown with Error Message",
-    "code": { DropdownErrorExampleCode },
+    "code": DropdownErrorExampleCode,
     "view": <DropdownErrorExample />
 }],
   propertiesTablesSources: [

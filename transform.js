@@ -57,18 +57,20 @@ function transform(file, api) {
     overview: j.literal(''),
     dos: j.literal(''),
     donts: j.literal(''),
-    propertiesTablesSources: j.arrayExpression([])
+    propertiesTablesSources: j.arrayExpression([]),
   };
 
   componentOpening.attributes.forEach(attribute => {
+    let examples = [];
+    let cards;
+
     switch(attribute.name.name) {
       case 'title':
         props.title = attribute.value.value;
         break;
 
-      case 'exampleCards':
-        const examples = [];
-        const cards = j(attribute.value.expression).findJSXElements('ExampleCard');
+      case 'implementationExampleCards':
+        cards = j(attribute.value.expression).findJSXElements('ExampleCard');
 
         cards.forEach(card => {
           const attrs = card.value.openingElement.attributes;
@@ -79,7 +81,29 @@ function transform(file, api) {
 
           const example = j.objectExpression([
             j.property('init', j.literal('title'), exampleTitle),
-            j.property('init', j.literal('code'), attrs.find(attr => attr.name.name == 'code').value),
+            j.property('init', j.literal('code'), j.identifier(attrs.find(attr => attr.name.name == 'code').value.expression.name)),
+            j.property('init', j.literal('view'), view)
+          ]);
+
+          examples.push(example);
+        });
+
+        props.implementationExamples = j.arrayExpression(examples);
+        break;
+
+      case 'exampleCards':
+        cards = j(attribute.value.expression).findJSXElements('ExampleCard');
+
+        cards.forEach(card => {
+          const attrs = card.value.openingElement.attributes;
+          
+          const view = j(card.value.children).find(j.JSXOpeningElement).at(0).get().parentPath.value;
+          const exampleTitleValue = attrs.find(attr => attr.name.name == 'title').value;
+          const exampleTitle = exampleTitleValue.value ? j.literal(exampleTitleValue.value) : j(exampleTitleValue).find(j.StringLiteral).at(0).get().value;
+
+          const example = j.objectExpression([
+            j.property('init', j.literal('title'), exampleTitle),
+            j.property('init', j.literal('code'), j.identifier(attrs.find(attr => attr.name.name == 'code').value.expression.name)),
             j.property('init', j.literal('view'), view)
           ]);
 
@@ -149,6 +173,28 @@ function transform(file, api) {
 
         props.donts = j(attribute.value.expression).find(j.JSXExpressionContainer).at(0).get().value.expression;
         break;
+
+      case 'nativePropsElement':
+        props.nativePropsElement = attribute.value.expression;
+        break;
+
+      case 'related':
+        props.related = attribute.value.expression;
+        break;
+      
+      case 'allowNativeProps':
+        props.allowNativeProps = j.literal(attribute.value.expression.value);
+        break;
+
+      case 'componentUrl':
+      case 'componentStatus':
+      case 'componentName':
+      case 'isHeaderVisible':
+        break;
+
+      default:
+        console.log(`[${props.title}] UH OH SKIPPING ${attribute.name.name}`);
+        break;
     }
   });
 
@@ -159,13 +205,13 @@ function transform(file, api) {
   componentName: '${props.title}',
   componentUrl: 'https://github.com/OfficeDev/office-ui-fabric-react/tree/master/packages/office-ui-fabric-react/src/components/${props.title}',
   componentStatus: ${props.title}Status,
-  examples: ${j(props.examples).toSource()},
+  examples: ${j(props.examples).toSource()},${props.implementationExamples ? `\nimplementationExamples: ${j(props.implementationExamples).toSource()},` : ''}
   propertiesTablesSources: ${j(props.propertiesTablesSources).toSource()},
   overview: ${j(props.overview).toSource()},
   bestPractices: ${j(props.bp).toSource()},
   dos: ${j(props.dos).toSource()},
   donts: ${j(props.donts).toSource()},
-  isHeaderVisible: true,
+  isHeaderVisible: true,${props.allowNativeProps ? `\n  allowNativeProps: ${j(props.allowNativeProps).toSource()},` : ''}${props.nativePropsElement ? `\n  nativePropsElement: ${j(props.nativePropsElement).toSource()},` : ''}${props.related ? `\n  related: ${j(props.related).toSource()},` : ''}
 };`;
 
   const replacement = recast.parse(exportStatement, { parser: { parse } }).program.body;
